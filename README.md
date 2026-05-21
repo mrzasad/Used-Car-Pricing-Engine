@@ -36,5 +36,5 @@ result then adjust for miles, then collision, previous owner, and finally reliab
 Note that if previous owner, had a positive effect, then it should be applied 
 AFTER step 5. If a negative effect, then BEFORE step 5.
 
+<img width="1456" height="731" alt="image_3123ab" src="https://github.com/user-attachments/assets/8ebfd770-50c8-4bab-af25-62ed381c12a1" />
 
-![screenshot](https://github.com/mrzasad/Car-Price-Determinator-app/blob/master/carPriceOutput.PNG)
