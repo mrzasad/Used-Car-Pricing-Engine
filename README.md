@@ -328,3 +328,5 @@ Pull requests and improvements are welcome.
 2. Create a feature branch
 3. Commit your changes
 4. Open a pull request
+
+<img width="1456" height="731" alt="image_3123ab" src="https://github.com/user-attachments/assets/034816da-e4e1-4ea7-8003-9b4a7d346813" />
