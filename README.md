@@ -1,105 +1,186 @@
+# Used Car Valuation Engine
 
-Used Car Valuation AlgorithmThis project implements a sequential algorithm to determine the current value of a used car based on its history, condition, and manufacturer.Pricing LogicThe algorithm processes the vehicle value sequentially across five distinct steps. Each factor calculates its adjustment based on the running result of the previous step.1. AgeRule: Reduce value by 0.5% for every month of the car's age.Cap: Depreciation stops after 10 years (120 months).Type: Non-cumulative (calculated directly from total months).2. MileageRule: Reduce value by 0.2% for every full 1,000 miles.Cap: Depreciation stops after 150,000 miles.Note: Ignore remaining miles under 1,000.3. Previous Owners (Negative Impact)Rule: If the car has had more than 2 previous owners, reduce the value by 25%.Note: If the car has 0 owners, this positive bonus is deferred to Step 6.4. CollisionsRule: Reduce value by 2% for every reported collision.Cap: Maximum reduction applies up to 5 collisions (10% total max).5. ReliabilityToyota: Add 5% to the current running value.Ford: Subtract $500 from the current running value.6. Previous Owners (Positive Impact) & Profitability CapZero Owners: Add 10% to the final value calculated after Step 5.Profitability Cap: The final calculated price can never exceed 90% of the original purchase price.Order of Execution Flowchart[Original Purchase Price]
-           │
-           ▼
-     1. Age Factor
-           │
-           ▼
-    2. Miles Factor
-           │
-           ▼
- 3. Owners > 2? (If yes, -25%)
-           │
-           ▼
-   4. Collision Factor
-           │
-           ▼
-  5. Reliability (Toyota/Ford)
-           │
-           ▼
- 6. Owners = 0? (If yes, +10%)
-           │
-           ▼
-[Apply 90% Max Profitability Cap] ──► [Final Car Value]
-Getting StartedPrerequisitesYour preferred programming language environment (e.g., Python 3.x, Node.js, or .NET)InstallationClone the repository:bashgit clone https://github.com
-Use code with caution.Navigate to the project directory:bashcd used-car-valuation
-Use code with caution.Usage Example (Pseudo-code)pythoncar = {
-    "purchase_price": 30000,
-    "months_old": 36,
-    "mileage": 45200,
-    "owners": 0,
-    "collisions": 1,
-    "make": "Toyota"
-}
+A .NET class library and valuation algorithm that determines the fair market value of a used vehicle by sequentially applying adjustments for:
 
-final_value = calculate_car_value(car)
-print(f"Calculated Value: ${final_value}")
-Use code with caution.To help me tailor the code examples or setup instructions in this file, could you tell me what programming language you are using for this project, and if you need an automated test suite section included?create a readme fileUsed Car Valuation EngineA standardized algorithm that determines the fair market value of a used vehicle by sequentially applying adjustments for age, mileage, history, and brand reliability.⚙️ Calculation PipelineThe engine calculates value adjustments sequentially. Each step modifies the running total inherited from the previous step.[Purchase Price] 
+- Vehicle age
+- Mileage
+- Ownership history
+- Collision history
+- Brand reliability
+
+The engine processes adjustments in order, with each step modifying the running total inherited from the previous step.
+
+---
+
+# ⚙️ Calculation Pipeline
+
+```text
+[Purchase Price]
        │
        ▼
-   1. AGE ──────────► -0.5% per month (Max 120 months)
+1. AGE ──────────► -0.5% per month (Max 120 months)
        │
        ▼
-   2. MILEAGE ──────► -0.2% per 1,000 miles (Max 150k miles)
+2. MILEAGE ──────► -0.2% per 1,000 miles (Max 150k miles)
        │
        ▼
-   3. OWNERS > 2 ───► -25% penalty (Skip if ≤ 2 owners)
+3. OWNERS > 2 ───► -25% penalty (Skip if ≤ 2 owners)
        │
        ▼
-   4. COLLISIONS ───► -2% per incident (Max 5 collisions)
+4. COLLISIONS ───► -2% per incident (Max 5 collisions)
        │
        ▼
-   5. RELIABILITY ──► Toyota: +5%  |  Ford: -$500
+5. RELIABILITY ──► Toyota: +5% | Ford: -$500
        │
        ▼
-   6. OWNERS = 0 ───► +10% bonus (Applied to post-Step 5 total)
+6. OWNERS = 0 ───► +10% bonus (Applied after Step 5)
        │
        ▼
-[PROFIT CAP] ──────► Hard ceiling at 90% of original purchase price
-📊 Business Rules1. Age DepreciationRate: Lose 0.5% of current value per month.Limit: Depreciation stops completely at 10 years (120 months).Formula: Non-cumulative base percentage drop based on total months.2. Mileage DepreciationRate: Lose 0.2% of current value per 1,000 miles.Limit: Depreciation stops completely at 150,000 miles.Condition: Trailing miles under 1,000 are ignored.3. Ownership ImpactHigh Ownership: If owners > 2, apply a 25% penalty immediately before collision processing.Zero Ownership: If owners = 0, apply a 10% bonus to the calculation after brand reliability processing.4. Collision PenaltyRate: Lose 2% of current value per incident.Limit: Capped at 5 collisions maximum (10% total reduction).5. Manufacturer ReliabilityToyota: Add 5% to the running value.Ford: Subtract a flat $500 from the running value.6. Profitability ProtectionCap: The final output value can never exceed 90% of the initial purchase price.🚀 Quick StartInstallationbashgit clone https://github.com
+[PROFIT CAP] ────► Final value capped at 90% of purchase price
+```
+
+---
+
+# 📊 Business Rules
+
+## 1. Age Depreciation
+
+- **Rate:** Lose `0.5%` of current value per month
+- **Limit:** Maximum `120 months` (10 years)
+
+### Formula
+
+```text
+current -= current * (months * 0.005)
+```
+
+---
+
+## 2. Mileage Depreciation
+
+- **Rate:** Lose `0.2%` of current value per `1,000` miles
+- **Limit:** Maximum `150,000` miles
+- **Note:** Remaining miles under `1,000` are ignored
+
+### Formula
+
+```text
+current -= current * (thousands * 0.002)
+```
+
+---
+
+## 3. Ownership Impact
+
+### High Ownership Penalty
+
+If:
+
+```text
+owners > 2
+```
+
+Apply:
+
+```text
+-25%
+```
+
+### Zero Ownership Bonus
+
+If:
+
+```text
+owners == 0
+```
+
+Apply:
+
+```text
++10%
+```
+
+This bonus is applied **after manufacturer reliability adjustments**.
+
+---
+
+## 4. Collision Penalty
+
+- **Rate:** `-2%` per collision
+- **Limit:** Maximum `5` collisions
+
+### Maximum Reduction
+
+```text
+10%
+```
+
+---
+
+## 5. Manufacturer Reliability
+
+### Toyota
+
+```text
++5% value increase
+```
+
+### Ford
+
+```text
+-$500 flat deduction
+```
+
+---
+
+## 6. Profitability Protection
+
+The final valuation can never exceed:
+
+```text
+90% of the original purchase price
+```
+
+---
+
+# 🚀 Quick Start
+
+## Prerequisites
+
+- .NET 8.0 SDK or higher
+
+---
+
+# 📦 Installation
+
+```bash
+git clone https://github.com/<your-username>/used-car-valuation.git
+
 cd used-car-valuation
-Use code with caution.Input Data Schemajson{
-  "purchasePrice": 25000.00,
-  "ageInMonths": 48,
-  "mileage": 42500,
-  "previousOwners": 0,
-  "reportedCollisions": 1,
-  "make": "Toyota"
-}
-Use code with caution.To complete this file, could you share which language (e.g., Python, JavaScript, Java) you wrote the application in? I can provide the exact installation commands and run scripts for your specific tech stack..netUsed Car Valuation EngineA .NET class library and algorithm that determines the fair market value of a used vehicle by sequentially applying adjustments for age, mileage, history, and brand reliability.⚙️ Calculation PipelineThe engine calculates value adjustments sequentially. Each step modifies the running total inherited from the previous step.[Purchase Price] 
-       │
-       ▼
-   1. AGE ──────────► -0.5% per month (Max 120 months)
-       │
-       ▼
-   2. MILEAGE ──────► -0.2% per 1,000 miles (Max 150k miles)
-       │
-       ▼
-   3. OWNERS > 2 ───► -25% penalty (Skip if ≤ 2 owners)
-       │
-       ▼
-   4. COLLISIONS ───► -2% per incident (Max 5 collisions)
-       │
-       ▼
-   5. RELIABILITY ──► Toyota: +5%  |  Ford: -$500
-       │
-       ▼
-   6. OWNERS = 0 ───► +10% bonus (Applied to post-Step 5 total)
-       │
-       ▼
-[PROFIT CAP] ──────► Hard ceiling at 90% of original purchase price
-📊 Business Rules1. Age DepreciationRate: Lose 0.5% of current value per month.Limit: Depreciation stops completely at 10 years (120 months).2. Mileage DepreciationRate: Lose 0.2% of current value per 1,000 miles.Limit: Depreciation stops completely at 150,000 miles.Condition: Trailing miles under 1,000 are ignored.3. Ownership ImpactHigh Ownership: If owners > 2, apply a 25% penalty immediately before collision processing.Zero Ownership: If owners = 0, apply a 10% bonus to the calculation after brand reliability processing.4. Collision PenaltyRate: Lose 2% of current value per incident.Limit: Capped at 5 collisions maximum (10% total reduction).5. Manufacturer ReliabilityToyota: Add 5% to the running value.Ford: Subtract a flat $500 from the running value.6. Profitability ProtectionCap: The final output value can never exceed 90% of the initial purchase price.🚀 Quick StartPrerequisites.NET 8.0 SDK or higherInstallationbashgit clone https://github.com
-cd used-car-valuation
+
 dotnet restore
-Use code with caution.Reference Implementation (C#)csharppublic record CarInput(
-    decimal PurchasePrice, 
-    int AgeInMonths, 
-    int Mileage, 
-    int PreviousOwners, 
-    int Collisions, 
+```
+
+---
+
+# 🧩 Data Model
+
+```csharp
+public record CarInput(
+    decimal PurchasePrice,
+    int AgeInMonths,
+    int Mileage,
+    int PreviousOwners,
+    int Collisions,
     string Make
 );
+```
 
+---
+
+# 🧠 Reference Implementation
+
+```csharp
 public class ValuationEngine
 {
     public decimal CalculateValue(CarInput car)
@@ -143,9 +224,107 @@ public class ValuationEngine
 
         // Profitability Cap
         decimal maxPrice = car.PurchasePrice * 0.90m;
+
         return Math.Min(current, maxPrice);
     }
 }
+```
 
-<img width="1456" height="731" alt="image_3123ab" src="https://github.com/user-attachments/assets/8ebfd770-50c8-4bab-af25-62ed381c12a1" />
+---
 
+# ✅ Example Usage
+
+```csharp
+var car = new CarInput(
+    PurchasePrice: 30000m,
+    AgeInMonths: 36,
+    Mileage: 45000,
+    PreviousOwners: 1,
+    Collisions: 2,
+    Make: "Toyota"
+);
+
+var engine = new ValuationEngine();
+
+decimal estimatedValue = engine.CalculateValue(car);
+
+Console.WriteLine($"Estimated Value: {estimatedValue:C}");
+```
+
+---
+
+# 🧪 Running Tests
+
+```bash
+dotnet test
+```
+
+---
+
+# 📁 Suggested Project Structure
+
+```text
+used-car-valuation/
+│
+├── src/
+│   └── UsedCarValuation/
+│       ├── CarInput.cs
+│       ├── ValuationEngine.cs
+│       └── BusinessRules/
+│
+├── tests/
+│   └── UsedCarValuation.Tests/
+│
+├── README.md
+└── UsedCarValuation.sln
+```
+
+---
+
+# 🔍 Example Scenarios
+
+| Scenario | Result |
+|---|---|
+| New Toyota with no owners | Gains reliability + ownership bonus |
+| Older high-mileage vehicle | Heavy depreciation |
+| Ford with multiple owners | Ownership penalty + flat deduction |
+| Collision-heavy vehicle | Collision reduction capped at 10% |
+
+---
+
+# 📈 Design Goals
+
+- Deterministic valuation logic
+- Sequential rule processing
+- Easily testable
+- Extensible business rules
+- Simple .NET integration
+
+---
+
+# 🛠️ Future Improvements
+
+- ASP.NET Core Web API
+- Rule engine abstraction
+- Configuration-based valuation rules
+- Database persistence
+- VIN decoding integration
+- Market trend adjustments
+- ML-assisted pricing models
+
+---
+
+# 📄 License
+
+MIT License
+
+---
+
+# 🤝 Contributing
+
+Pull requests and improvements are welcome.
+
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Open a pull request
